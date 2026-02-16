@@ -1,31 +1,13 @@
 [build]
-  command = "npm run build"
-  publish = "public"
+  # No necesitamos un comando de build si no tenemos un frontend que compilar
+  publish = "public" # Directorio para cualquier archivo estático que tengas
   functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "18"
 
-# Redirects for SPA (Single Page Application)
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-# API Functions redirects
+# La única regla de redirección que necesitas para tu API
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
-
-# Functions configuration
-[functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
-
-# Context-specific settings
-[context.production]
-  environment = { NODE_ENV = "production" }
-
-[context.develop]
-  environment = { NODE_ENV = "development" }
