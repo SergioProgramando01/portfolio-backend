@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-cube"></i> AdminPanel</h2>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-section="sites">
+                    <i class="fas fa-globe"></i>
+                    <span>Sitios</span>
+                </a>
+                <a href="#" class="nav-item" data-section="products">
+                    <i class="fas fa-box"></i>
+                    <span>Productos</span>
+                </a>
+                <a href="#" class="nav-item" data-section="content">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Contenido</span>
+                </a>
+                <a href="#" class="nav-item" data-section="analytics">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="api-status" id="apiStatus">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Conectando...</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-title">
+                    <h1 id="pageTitle">Dashboard</h1>
+                    <p id="pageSubtitle">Resumen general del sistema</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-icon" id="refreshBtn" title="Actualizar">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="btn btn-primary" id="addNewBtn" style="display: none;">
+                        <i class="fas fa-plus"></i> Nuevo
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Section -->
+            <section class="content-section active" id="dashboardSection">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon sites-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Sitios</h3>
+                            <p class="stat-value" id="totalSites">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon products-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Productos</h3>
+                            <p class="stat-value" id="totalProducts">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon content-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Contenido</h3>
+                            <p class="stat-value" id="totalContent">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon events-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Eventos</h3>
+                            <p class="stat-value" id="totalEvents">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Últimos Sitios Creados</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="recent-list" id="recentSites">
+                                <div class="empty-state">
+                                    <i class="fas fa-globe"></i>
+                                    <p>No hay sitios registrados</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Últimos Productos</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="recent-list" id="recentProducts">
+                                <div class="empty-state">
+                                    <i class="fas fa-box"></i>
+                                    <p>No hay productos registrados</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sites Section -->
+            <section class="content-section" id="sitesSection">
+                <div class="table-container">
+                    <table class="data-table" id="sitesTable">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Dominio</th>
+                                <th>Tipo</th>
+                                <th>Estado</th>
+                                <th>Blog</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sitesTableBody">
+                        </tbody>
+                    </table>
+                    <div class="empty-state" id="sitesEmpty">
+                        <i class="fas fa-globe"></i>
+                        <p>No hay sitios registrados</p>
+                        <button class="btn btn-primary" onclick="showSiteModal()">
+                            <i class="fas fa-plus"></i> Crear Primer Sitio
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Products Section -->
+            <section class="content-section" id="productsSection">
+                <div class="filters-bar">
+                    <div class="filter-group">
+                        <label>Filtrar por sitio:</label>
+                        <select id="productSiteFilter" class="form-select">
+                            <option value="">Todos los sitios</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="productsTable">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Precio</th>
+                                <th>Categoría</th>
+                                <th>Stock</th>
+                                <th>Sitio</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody">
+                        </tbody>
+                    </table>
+                    <div class="empty-state" id="productsEmpty">
+                        <i class="fas fa-box"></i>
+                        <p>No hay productos registrados</p>
+                        <button class="btn btn-primary" onclick="showProductModal()">
+                            <i class="fas fa-plus"></i> Crear Primer Producto
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Content Section -->
+            <section class="content-section" id="contentSection">
+                <div class="filters-bar">
+                    <div class="filter-group">
+                        <label>Filtrar por sitio:</label>
+                        <select id="contentSiteFilter" class="form-select">
+                            <option value="">Todos los sitios</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Filtrar por tipo:</label>
+                        <select id="contentTypeFilter" class="form-select">
+                            <option value="">Todos los tipos</option>
+                            <option value="hero">Hero</option>
+                            <option value="features">Features</option>
+                            <option value="testimonials">Testimonials</option>
+                            <option value="cta">CTA</option>
+                            <option value="gallery">Gallery</option>
+                            <option value="text">Text</option>
+                            <option value="video">Video</option>
+                            <option value="faq">FAQ</option>
+                            <option value="contact">Contact</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="contentTable">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Tipo</th>
+                                <th>Orden</th>
+                                <th>Sitio</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contentTableBody">
+                        </tbody>
+                    </table>
+                    <div class="empty-state" id="contentEmpty">
+                        <i class="fas fa-file-alt"></i>
+                        <p>No hay contenido registrado</p>
+                        <button class="btn btn-primary" onclick="showContentModal()">
+                            <i class="fas fa-plus"></i> Crear Primer Contenido
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section class="content-section" id="analyticsSection">
+                <div class="analytics-filters">
+                    <div class="filter-group">
+                        <label>Seleccionar sitio:</label>
+                        <select id="analyticsSiteFilter" class="form-select">
+                            <option value="">Selecciona un sitio</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Fecha inicio:</label>
+                        <input type="date" id="analyticsStartDate" class="form-input">
+                    </div>
+                    <div class="filter-group">
+                        <label>Fecha fin:</label>
+                        <input type="date" id="analyticsEndDate" class="form-input">
+                    </div>
+                    <button class="btn btn-primary" id="loadAnalyticsBtn">
+                        <i class="fas fa-chart-line"></i> Cargar Datos
+                    </button>
+                </div>
+
+                <div class="analytics-dashboard" id="analyticsDashboard" style="display: none;">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon events-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Total Eventos</h3>
+                                <p class="stat-value" id="analyticsTotalEvents">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon sessions-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Sesiones Únicas</h3>
+                                <p class="stat-value" id="analyticsUniqueSessions">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="analytics-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Eventos por Tipo</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="event-types-chart" id="eventTypesChart">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Últimos Eventos</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="recent-events-list" id="recentEventsList">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card full-width">
+                        <div class="card-header">
+                            <h3>Todos los Eventos</h3>
+                            <button class="btn btn-sm btn-danger" id="cleanupEventsBtn">
+                                <i class="fas fa-trash"></i> Limpiar Eventos Antiguos
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <table class="data-table" id="eventsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Elemento</th>
+                                        <th>Página</th>
+                                        <th>Dispositivo</th>
+                                        <th>Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="eventsTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal para Sitios -->
+    <div class="modal" id="siteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="siteModalTitle">Nuevo Sitio</h3>
+                <button class="modal-close" onclick="closeSiteModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="siteForm" class="modal-body">
+                <input type="hidden" id="siteId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="siteName">Nombre *</label>
+                        <input type="text" id="siteName" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="siteDomain">Dominio *</label>
+                        <input type="text" id="siteDomain" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="siteType">Tipo *</label>
+                        <select id="siteType" class="form-select" required>
+                            <option value="CATALOG">Catálogo</option>
+                            <option value="LANDING_PAGE">Landing Page</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="siteDescription">Descripción</label>
+                        <input type="text" id="siteDescription" class="form-input">
+                    </div>
+                </div>
+                <div class="form-section">
+                    <h4>Branding</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="siteLogoUrl">Logo URL</label>
+                            <input type="url" id="siteLogoUrl" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="sitePrimaryColor">Color Primario</label>
+                            <input type="color" id="sitePrimaryColor" class="form-input color-input" value="#007bff">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="siteSecondaryColor">Color Secundario</label>
+                            <input type="color" id="siteSecondaryColor" class="form-input color-input" value="#6c757d">
+                        </div>
+                        <div class="form-group">
+                            <label for="siteAccentColor">Color Acento</label>
+                            <input type="color" id="siteAccentColor" class="form-input color-input" value="#28a745">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-section">
+                    <h4>Integraciones</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="siteGtmId">Google Tag Manager ID</label>
+                            <input type="text" id="siteGtmId" class="form-input" placeholder="GTM-XXXXXXX">
+                        </div>
+                        <div class="form-group">
+                            <label for="siteGaId">Google Analytics ID</label>
+                            <input type="text" id="siteGaId" class="form-input" placeholder="UA-XXXXXXX-X">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="siteMetaPixelId">Meta Pixel ID</label>
+                        <input type="text" id="siteMetaPixelId" class="form-input" placeholder="1234567890">
+                    </div>
+                </div>
+                <div class="form-section">
+                    <h4>SEO</h4>
+                    <div class="form-group">
+                        <label for="siteSeoTitle">Title</label>
+                        <input type="text" id="siteSeoTitle" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="siteSeoDescription">Description</label>
+                        <textarea id="siteSeoDescription" class="form-textarea" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="siteSeoKeywords">Keywords</label>
+                        <input type="text" id="siteSeoKeywords" class="form-input" placeholder="palabra1, palabra2, palabra3">
+                    </div>
+                </div>
+                <div class="form-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="siteHasBlog">
+                        <span>Habilitar Blog</span>
+                    </label>
+                </div>
+                <div class="form-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="siteIsActive" checked>
+                        <span>Sitio Activo</span>
+                    </label>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeSiteModal()">Cancelar</button>
+                <button type="submit" form="siteForm" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Productos -->
+    <div class="modal" id="productModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="productModalTitle">Nuevo Producto</h3>
+                <button class="modal-close" onclick="closeProductModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="productForm" class="modal-body">
+                <input type="hidden" id="productId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productSite">Sitio *</label>
+                        <select id="productSite" class="form-select" required>
+                            <option value="">Selecciona un sitio</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="productName">Nombre *</label>
+                        <input type="text" id="productName" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productPrice">Precio *</label>
+                        <input type="number" id="productPrice" class="form-input" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productCurrency">Moneda</label>
+                        <select id="productCurrency" class="form-select">
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                            <option value="COP">COP</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productCategory">Categoría</label>
+                        <input type="text" id="productCategory" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="productStock">Stock</label>
+                        <input type="number" id="productStock" class="form-input" min="0" value="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productSku">SKU</label>
+                        <input type="text" id="productSku" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="productImageUrl">URL de Imagen</label>
+                        <input type="url" id="productImageUrl" class="form-input">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="productDescription">Descripción</label>
+                    <textarea id="productDescription" class="form-textarea" rows="3"></textarea>
+                </div>
+                <div class="form-section">
+                    <h4>SEO</h4>
+                    <div class="form-group">
+                        <label for="productSeoTitle">Title</label>
+                        <input type="text" id="productSeoTitle" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="productSeoDescription">Description</label>
+                        <textarea id="productSeoDescription" class="form-textarea" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="productSeoKeywords">Keywords</label>
+                        <input type="text" id="productSeoKeywords" class="form-input" placeholder="palabra1, palabra2, palabra3">
+                    </div>
+                </div>
+                <div class="form-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="productIsActive" checked>
+                        <span>Producto Activo</span>
+                    </label>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeProductModal()">Cancelar</button>
+                <button type="submit" form="productForm" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Contenido -->
+    <div class="modal" id="contentModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="contentModalTitle">Nuevo Contenido</h3>
+                <button class="modal-close" onclick="closeContentModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="contentForm" class="modal-body">
+                <input type="hidden" id="contentId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="contentSite">Sitio *</label>
+                        <select id="contentSite" class="form-select" required>
+                            <option value="">Selecciona un sitio</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="contentTitle">Título *</label>
+                        <input type="text" id="contentTitle" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="contentType">Tipo *</label>
+                        <select id="contentType" class="form-select" required>
+                            <option value="hero">Hero</option>
+                            <option value="features">Features</option>
+                            <option value="testimonials">Testimonials</option>
+                            <option value="cta">CTA</option>
+                            <option value="gallery">Gallery</option>
+                            <option value="text">Text</option>
+                            <option value="video">Video</option>
+                            <option value="faq">FAQ</option>
+                            <option value="contact">Contact</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="contentOrder">Orden</label>
+                        <input type="number" id="contentOrder" class="form-input" min="0" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="contentData">Datos (JSON)</label>
+                    <textarea id="contentData" class="form-textarea code-textarea" rows="8" placeholder='{"key": "value"}'></textarea>
+                </div>
+                <div class="form-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="contentIsActive" checked>
+                        <span>Contenido Activo</span>
+                    </label>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeContentModal()">Cancelar</button>
+                <button type="submit" form="contentForm" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/sites.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/content.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
